@@ -1,0 +1,110 @@
+body {
+    background: url('https://studio.panoee.net/images/anim-1.gif') no-repeat center center fixed;
+    /* Background GIF */
+    background-size: cover;
+    color: #fff;
+}
+
+.outer {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    min-width: 100vw;
+    backdrop-filter: blur(5px);
+    /* Blur effect for better readability */
+}
+
+.tours-container {
+    background-color: rgba(30, 30, 30, 0.8);
+    /* Dark card background */
+    border-radius: 15px;
+    padding: 20px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+    width: 80%;
+    max-width: 600px;
+    /* Limit max width */
+}
+
+h1 {
+    font-family: 'Happy Monkey';
+    font-size: 2.5rem;
+    /* Adjust heading size */
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.tours-list {
+    margin-top: 20px;
+}
+
+.tour-item {
+    background-color: rgba(50, 50, 50, 0.9);
+    /* Card background */
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+
+    padding: 15px;
+    border-radius: 10px;
+    margin-bottom: 15px;
+    transition: transform 0.2s;
+}
+
+.tour-item:hover {
+    transform: scale(1.02);
+    /* Scale effect on hover */
+}
+
+.tour-title {
+    cursor: pointer;
+    color: #d6eaff;
+    /* Bright color for the title */
+    font-size: 1.2rem;
+    /* Adjust title size */
+}
+
+.update-button {
+    background-color: #FF6347;
+    /* Tomato color */
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.update-button:hover {
+    background-color: #FF4500;
+    /* Darker tomato on hover */
+}
+
+.add-tour {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 20px;
+}
+
+.tour-input {
+    padding: 10px;
+    border-radius: 5px;
+    border: none;
+    margin-right: 10px;
+}
+
+.add-button {
+    background-color: #32CD32;
+    /* Lime green */
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.add-button:hover {
+    background-color: #228B22;
+    /* Darker green on hover */
+}

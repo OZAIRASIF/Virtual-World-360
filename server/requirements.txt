@@ -1,0 +1,6 @@
+cloudinary
+fastapi==0.85.1
+pydantic==1.10.7
+pymongo[srv]==3.11.0
+python-multipart
+motor
