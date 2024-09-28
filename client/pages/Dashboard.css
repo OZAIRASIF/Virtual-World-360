@@ -21,13 +21,15 @@ html {
 
 .nav {
     z-index: 5;
+    padding: 0 30px;
     position: absolute;
-    background-color: rgba(48, 48, 48, 0.89);
+    background-color: rgba(30, 30, 30, 0.89);
     display: flex;
     width: 100%;
     align-items: center;
     justify-content: space-between;
     border-bottom: 0.4px solid white;
+
 }
 
 .image {
@@ -38,7 +40,7 @@ html {
     font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
     font-size: 1.7rem;
     font-weight: 900;
-    color: crimson;
+    color: rgb(204, 255, 241);
 }
 
 .links a {
@@ -80,4 +82,55 @@ html {
 
 .tour-editor-btn {
     height: 50px;
+}
+
+.tour-editor-btn a {
+    color: black;
+
+}
+
+.overlay {
+    position: absolute;
+    z-index: 100000;
+    top: 50%;
+    left: 50%;
+    border-radius: 50px;
+    transform: translate(-50%, -50%);
+    width: 40vw;
+    height: 60vh;
+    background-color: rgba(45, 45, 45, 0.817);
+    display: flex;
+    gap: 4rem;
+
+    padding: 10px 20px;
+
+    background: rgba(255, 255, 255, 0.1);
+    /* Light transparent background */
+    backdrop-filter: blur(10px);
+    /* Blur the background */
+    -webkit-backdrop-filter: blur(10px);
+    /* For Safari */
+    border-radius: 10px;
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+}
+
+.left {
+    align-self: center;
+    flex-basis: 60%;
+    display: flex;
+    flex-direction: column;
+
+    justify-content: space-between;
+}
+
+.textContent {
+    padding: 15px;
+}
+
+.right {
+    background: url('https://studio.panoee.net/images/anim-1.gif') no-repeat center center fixed;
+    /* Background GIF */
+    background-size: cover;
+    color: #fff;
+    flex-basis: 50%;
 }

@@ -21,12 +21,13 @@ const Menubar = ({ hotspotType, setHotspotType, targetScene, setTargetScene, sce
             {hotspotType === "custom" && (
                 <label>
                     Target Scene:
-                    <select value={targetScene} onChange={(e) => setTargetScene(e.target.value)}>
+                    <select value={targetScene} onChange={(e) => setTargetScene(e.target.value)}> {/* Ensure targetScene is updated */}
+                        <option value="">None</option>
                         {Object.keys(scenes)
-                            .filter(sceneId => sceneId !== currentScene) // Filter out the current scene
+                            .filter(sceneId => sceneId !== currentScene) // Exclude the current scene
                             .map(sceneId => (
                                 <option key={sceneId} value={sceneId}>
-                                    {scenes[sceneId].name} {/* Display the scene name */}
+                                    {scenes[sceneId].name}
                                 </option>
                             ))}
                     </select>

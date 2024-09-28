@@ -15,6 +15,7 @@ const TourEditor = () => {
     const [hotspotType, setHotspotType] = useState('custom');
     const [text, setText] = useState("");
     const [sceneName, setSceneName] = useState("");
+    const [previewMode, setPreviewMode] = useState(false)
     const [isEditing, setIsEditing] = useState(false); // Toggle editing mode
     const PanImage = useRef(null);
 
@@ -75,6 +76,10 @@ const TourEditor = () => {
         const viewer = PanImage.current.getViewer();
         const pitch = viewer.getPitch();
         const yaw = viewer.getYaw();
+        if (targetScene === "") {
+            alert("Please select a scene to add a hotspot")
+            return;
+        }
 
         const newHotspot = {
             pitch,
@@ -119,6 +124,11 @@ const TourEditor = () => {
         setIsEditing(!isEditing);
     };
 
+    const togglePreviewMode = () => {
+        setPreviewMode(!previewMode);
+        setIsEditing(false)
+    };
+
     const updateSceneName = async () => {
         try {
             // Send a request to update the scene name in the backend
@@ -155,7 +165,7 @@ const TourEditor = () => {
 
     return (
         <div className="tour-editor">
-            <div className="sidebar">
+            {!previewMode && <div className="sidebar">
                 <h2>Scene Management</h2>
                 <input type="file" onChange={handleFileChange} />
                 <button onClick={handleUploadScene}>Upload Scene</button>
@@ -172,7 +182,10 @@ const TourEditor = () => {
                                     <img src={scenes[sceneId].image} alt={scenes[sceneId].name} className="scene-image" />
                                     <span>{scenes[sceneId].name}</span>
                                 </div>
-                                <button onClick={(e) => { e.stopPropagation(); toggleEdit(sceneId); }} className="edit-btn">Edit</button>
+                                <button onClick={(e) => {
+                                    // e.stopPropagation();
+                                    toggleEdit(sceneId);
+                                }} className="edit-btn">Edit</button>
                             </div>
 
                         ))
@@ -180,7 +193,7 @@ const TourEditor = () => {
                         <p>No scenes available.</p>
                     )}
                 </div>
-            </div>
+            </div>}
 
             <div className="main-content">
                 {isEditing && (
@@ -195,6 +208,7 @@ const TourEditor = () => {
                             />
                             <button onClick={updateSceneName} className="update-btn">Update</button>
                         </div>
+
                         <Menubar
                             hotspotType={hotspotType}
                             setHotspotType={setHotspotType}
@@ -214,15 +228,15 @@ const TourEditor = () => {
 
                 <Pannellum
                     ref={PanImage}
-                    width="75vw"
-                    height="98vh"
+                    width={previewMode ? "100vw" : "75vw"}
+                    height={previewMode ? "100vh" : "98vh"}
                     image={current?.image || ''}
                     autoRotate={currentScene === "scene1" ? -5 : 0}
                     pitch={0}
                     yaw={0}
                     hfov={120}
-                    hotspotDebug={true}
-                    showControls={false}
+                    hotspotDebug={!previewMode}
+                    showControls={!previewMode}
                     autoLoad
                     title="GEC BILASPUR - VTour"
                     author="Swikrit Shukla"
@@ -235,11 +249,19 @@ const TourEditor = () => {
                             yaw={hs.yaw}
                             text={hs.text}
                             // handleClick={() => console.log(hs.sceneId)}
-                            handleClick={() => hs.sceneId && loadScene(hs.sceneId)} // Load the scene if the hotspot has a sceneId
+
+                            handleClick={() => {
+                                hs.sceneId && loadScene(hs.sceneId)
+                                console.log(hs.sceneId)
+                            }
+                            } // Load the scene if the hotspot has a sceneId
                         />
                     ))}
                 </Pannellum>
             </div>
+            <button className="preview-toggle" onClick={togglePreviewMode}>
+                {previewMode ? 'Exit Preview' : 'Enter Preview'}
+            </button>
         </div>
     );
 };

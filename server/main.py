@@ -151,7 +151,7 @@ def add_hotspot(scene_id: str, hotspot: Hotspot):
 
         # Convert the hotspot id to sceneId as string
         hotspot_data = hotspot.dict()
-        hotspot_data['sceneId'] = str(scene_id)  # Convert scene_id to string and store in 'sceneId'
+        hotspot_data['sceneId'] = str(hotspot_data['sceneId'])  # Convert scene_id to string and store in 'sceneId'
 
         # Add the modified hotspot to the scene's hotspots array
         scenes_collection.update_one(

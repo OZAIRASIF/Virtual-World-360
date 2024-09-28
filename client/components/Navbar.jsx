@@ -7,7 +7,7 @@ const Navbar = () => {
             <div className="icon">
                 <div className="image">
 
-                    <img src="https://icons.veryicon.com/png/o/miscellaneous/multicolor-linear-icon/vr-8.png" alt="icon" />
+                    <img src="https://cdn-icons-png.freepik.com/256/8170/8170956.png?ga=GA1.1.402226809.1713673499&semt=ais_hybrid" alt="icon" />
                 </div>
                 <h2>Virtual World 360</h2>
             </div>
@@ -18,12 +18,7 @@ const Navbar = () => {
                 <Link to="">Contact</Link>
             </div>
 
-            <div className="regxlog">
-                <button className='tour-editor-btn'>
-                    <Link to="/editor">Tour Editor</Link>
 
-                </button>
-            </div>
 
 
         </div>
