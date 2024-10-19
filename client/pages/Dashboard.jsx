@@ -2,9 +2,10 @@ import React from 'react'
 import './Dashboard.css'
 import { Pannellum } from 'pannellum-react';
 import Navbar from '../components/Navbar'
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 const Dashboard = () => {
+    const navigate = useNavigate()
     return (
         <div className="container">
             <Navbar />
@@ -15,7 +16,7 @@ const Dashboard = () => {
                         <h2>Welcome to the Virtual World 360</h2>
                         <p>Explore the scenes and get a closer look at the environment.</p>
                     </div>
-                    <button className='tour-editor-btn'>
+                    <button className='tour-editor-btn' onClick={() => navigate('/editor')}>
                         <Link to="/editor">Tour Editor</Link>
 
                     </button>

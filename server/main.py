@@ -64,6 +64,8 @@ def update_tour(tour_id: str, tour: Tour):
         raise HTTPException(status_code=404, detail="Tour not found")
     updated_tour = tours_collection.find_one({"id": tour_id})
     return updated_tour
+
+
 @app.post("/api/tours/{tour_id}/scenes", response_model=Scene)
 def create_scene_and_add_to_tour(tour_id: str, file: UploadFile = File(...)):
     try:
