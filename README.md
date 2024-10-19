@@ -63,7 +63,7 @@ Welcome to **VirtualWorld360**, a dynamic virtual tour editor that allows users 
 
 ## Virtual Tour Examples
 
-![Watch the demo](https://tour.panoee.net/virtualworld360/66f6978b0a46d062765f0e8e)
+<a href="https://tour.panoee.net/virtualworld360/66f6978b0a46d062765f0e8e">Watch Examples</a>
 
 ## Snapshots
 
