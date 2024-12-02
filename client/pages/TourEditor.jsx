@@ -8,6 +8,8 @@ import Menubar from '../components/Menubar';
 
 const TourEditor = () => {
     const tourId = useParams().id;
+    const [selectedHotspot, setSelectedHotspot] = useState(null); // Currently selected hotspot
+    const [isEditorOpen, setIsEditorOpen] = useState(false); // Toggle editor visibility
     const [targetScene, setTargetScene] = useState('');
     const [file, setFile] = useState(null);
     const [scenes, setScenes] = useState({});
@@ -124,6 +126,93 @@ const TourEditor = () => {
         setIsEditing(!isEditing);
     };
 
+    const deleteScene = async (sceneId) => {
+        const res = await axios.delete(`${backend_url}/api/tours/${tourId}/scenes/${sceneId}`)
+        if (res.status === 200) {
+            alert("Scene Deleted Succesfully")
+        }
+    }
+
+    const clickHostpot = (hs) => {
+        if (!previewMode) {
+            setSelectedHotspot(hs); // Set the selected hotspot
+            setIsEditorOpen(true); // Open the editor
+        } else if (hs.sceneId) {
+            loadScene(hs.sceneId); // Load the scene
+        } else {
+            alert("This hotspot is not linked to any scene.");
+        }
+    };
+
+
+    const updateHotspot = async () => {
+        if (!selectedHotspot || !selectedHotspot.text) {
+            alert("Hotspot text is required!");
+            return;
+        }
+
+        const updatedHotspot = { ...selectedHotspot };
+
+        // Optimistically update the UI
+        setScenes((prevScenes) => ({
+            ...prevScenes,
+            [currentScene]: {
+                ...prevScenes[currentScene],
+                hotspots: prevScenes[currentScene].hotspots.map((hs) =>
+                    hs.pitch === updatedHotspot.pitch && hs.yaw === updatedHotspot.yaw
+                        ? updatedHotspot
+                        : hs
+                ),
+            },
+        }));
+        try {
+            await axios.put(
+                `${backend_url}/api/scenes/${currentScene}/hotspots`,
+                updatedHotspot,
+                { headers: { "Content-Type": "application/json" } }
+            );
+
+            alert("Hotspot updated successfully");
+        } catch (error) {
+            console.error("Error updating hotspot:", error);
+            alert("Failed to update hotspot. Please try again.");
+        } finally {
+            setIsEditorOpen(false); // Close the editor
+        }
+    };
+
+
+    const deleteHotspot = async () => {
+        // Remove the hotspot locally
+        setScenes((prevScenes) => ({
+            ...prevScenes,
+            [currentScene]: {
+                ...prevScenes[currentScene],
+                hotspots: prevScenes[currentScene].hotspots.filter(
+                    (hs) =>
+                        hs.pitch !== selectedHotspot.pitch || hs.yaw !== selectedHotspot.yaw
+                ),
+            },
+        }));
+
+        // Remove the hotspot from the backend
+        try {
+            await axios.delete(
+                `${backend_url}/api/scenes/${currentScene}/hotspots`,
+                {
+                    data: { pitch: selectedHotspot.pitch, yaw: selectedHotspot.yaw },
+                    headers: { "Content-Type": "application/json" },
+                }
+            );
+            alert("Hotspot deleted successfully");
+        } catch (error) {
+            console.error("Error deleting hotspot:", error);
+        }
+
+        setIsEditorOpen(false); // Close the editor
+    };
+
+
     const togglePreviewMode = () => {
         setPreviewMode(!previewMode);
         setIsEditing(false)
@@ -165,7 +254,47 @@ const TourEditor = () => {
 
     return (
         <div className="tour-editor">
-            {!previewMode && <div className="sidebar">
+            {isEditorOpen && selectedHotspot && !previewMode && (
+                <div className="hotspot-editor-overlay">
+                    <div className="hotspot-editor">
+                        <h3>Edit Hotspot</h3>
+                        {hotspotType === "text" ? <label>
+                            Text:
+                            <input
+                                type="text"
+                                value={selectedHotspot.text}
+                                onChange={(e) =>
+                                    setSelectedHotspot({ ...selectedHotspot, text: e.target.value })
+                                }
+                            />
+                        </label> :
+                            <label>
+                                Target Scene:
+                                <select
+                                    value={selectedHotspot.sceneId || ""}
+                                    onChange={(e) =>
+                                        setSelectedHotspot({ ...selectedHotspot, sceneId: e.target.value })
+                                    }
+                                >
+                                    <option value="">None</option>
+                                    {Object.keys(scenes).map((sceneId) => (
+                                        <option key={sceneId} value={sceneId}>
+                                            {scenes[sceneId].name}
+                                        </option>
+                                    ))}
+                                </select>
+                            </label>
+                        }
+                        <div className="editor-actions">
+                            <button className='editBtn' onClick={updateHotspot}>Save</button>
+                            <button className='deleteBtn' onClick={deleteHotspot}>Delete</button>
+                            <button className='' onClick={() => setIsEditorOpen(false)}>Close</button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {!previewMode ? <div className="sidebar">
                 <h2>Scene Management</h2>
                 <input type="file" onChange={handleFileChange} />
                 <button onClick={handleUploadScene}>Upload Scene</button>
@@ -182,10 +311,22 @@ const TourEditor = () => {
                                     <img src={scenes[sceneId].image} alt={scenes[sceneId].name} className="scene-image" />
                                     <span>{scenes[sceneId].name}</span>
                                 </div>
-                                <button onClick={(e) => {
-                                    // e.stopPropagation();
-                                    toggleEdit(sceneId);
-                                }} className="edit-btn">Edit</button>
+                                <div className="btns">
+                                    <button onClick={(e) => {
+                                        // e.stopPropagation();
+                                        toggleEdit(sceneId);
+                                    }}
+                                        title="Edit"
+                                        className="edit-btn">E</button>
+
+                                    <button onClick={(e) => {
+                                        // e.stopPropagation();
+                                        deleteScene(sceneId);
+                                    }}
+                                        title="Delete"
+                                        className="deleteBtn">D</button>
+
+                                </div>
                             </div>
 
                         ))
@@ -193,7 +334,30 @@ const TourEditor = () => {
                         <p>No scenes available.</p>
                     )}
                 </div>
-            </div>}
+            </div>
+                : <div className="bottombar">
+                    {Object.keys(scenes).length > 0 ? (
+                        Object.keys(scenes).map((sceneId) => (
+                            <div
+                                key={sceneId}
+                                className={`scene-item2 ${currentScene === sceneId ? "active" : ""}`}
+                                onClick={() => loadScene(sceneId)}
+                            >
+                                <div className="scene-content2">
+                                    <img
+                                        src={scenes[sceneId].image}
+                                        alt={scenes[sceneId].name}
+                                        className="scene-image2"
+                                    />
+                                    <span>{scenes[sceneId].name}</span>
+                                </div>
+                            </div>
+                        ))
+                    ) : (
+                        <p>No scenes available</p>
+                    )}
+                </div>
+            }
 
             <div className="main-content">
                 {isEditing && (
@@ -250,11 +414,7 @@ const TourEditor = () => {
                             text={hs.text}
                             // handleClick={() => console.log(hs.sceneId)}
 
-                            handleClick={() => {
-                                hs.sceneId && loadScene(hs.sceneId)
-                                console.log(hs.sceneId)
-                            }
-                            } // Load the scene if the hotspot has a sceneId
+                            handleClick={() => clickHostpot(hs)} // Load the scene if the hotspot has a sceneId
                         />
                     ))}
                 </Pannellum>
@@ -262,7 +422,7 @@ const TourEditor = () => {
             <button className="preview-toggle" onClick={togglePreviewMode}>
                 {previewMode ? 'Exit Preview' : 'Enter Preview'}
             </button>
-        </div>
+        </div >
     );
 };
 

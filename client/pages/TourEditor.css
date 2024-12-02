@@ -169,7 +169,7 @@ html {
 
 .sidebar {
     width: 250px;
-    background-color: #2c3e50;
+    background-color: #010d19;
     color: white;
     padding: 20px;
     box-shadow: 2px 0 5px rgba(0, 0, 0, 0.5);
@@ -204,7 +204,7 @@ html {
 
 .scene-item {
     padding: 10px;
-    background-color: #34495e;
+    background-color: #2c476257;
     margin: 5px 0;
     cursor: pointer;
     transition: background-color 0.3s;
@@ -384,3 +384,133 @@ h4 {
     width: max-content;
     right: 5%;
 }
+
+.btns{
+    display: flex;
+    gap: 2px;
+}
+.editBtn{
+    background-color: #7772ff !important;
+}
+.deleteBtn{
+    background-color: #FF6347 !important;
+}
+
+
+.hotspot-editor-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999000;
+}
+
+.hotspot-editor {
+    background: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    width: 400px;
+    color:black;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.hotspot-editor h3 {
+    margin-top: 0;
+}
+
+.hotspot-editor label {
+    display: block;
+    margin-bottom: 10px;
+}
+
+.hotspot-editor input,
+.hotspot-editor select {
+    width: 100%;
+    padding: 8px;
+    margin-top: 5px;
+    margin-bottom: 15px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+.editor-actions {
+    display: flex;
+    justify-content: space-between;
+}
+
+.editor-actions button {
+    padding: 8px 12px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.editor-actions button:hover {
+    background-color: #f0f0f0;
+}
+
+.bottombar {
+
+    /* max-width: 50vw; */
+    position: fixed;
+    transform: translate(-50%,0);
+    left: 50%;
+    bottom: 0;
+    overflow-x: scroll;  backdrop-filter: blur(10px); /* Glassmorphic blur effect */
+    display: flex;
+    justify-content: center;
+    padding-left: 350px;
+    padding: 10px ;
+    z-index: 100000;
+    gap: 10px;
+    border-top: 1px solid rgba(255, 255, 255, 0.2); /* Subtle white border */
+    border-radius: 10px; /* Rounded edges */
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5); /* Soft shadow for depth */
+  }
+  
+
+
+.scene-item2 {
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100px;
+    transition: transform 0.2s ease-in-out;
+}
+
+.scene-item2:hover {
+    transform: scale(1.1);
+}
+
+.scene-item2.active {
+    border: 2px solid #4caf50;
+    border-radius: 8px;
+}
+
+.scene-content2 {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .scene-image2 {
+    width: 80px;
+    height: 60px;
+    object-fit: cover;
+    margin-bottom: 5px;
+    border-radius: 4px;
+  }
+  
+  .scene-item span {
+    color: white;
+    font-size: 14px;
+  }
+  
+  
