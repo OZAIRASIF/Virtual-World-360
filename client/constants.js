@@ -1,3 +1,3 @@
-export const backend_url = "http://localhost:8000"
-// export const backend_url = "https://attendotrack-backend.vercel.app/api/v1"
+// export const backend_url = "http://localhost:8000"
+export const backend_url = "https://virtualworld360-git-main-swikrit09s-projects.vercel.app"
 
