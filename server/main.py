@@ -5,7 +5,7 @@ from pymongo import MongoClient
 import cloudinary
 import cloudinary.uploader
 import os
-from models import HotspotDeleteRequest, HotspotUpdateRequest, Tour, Scene, Hotspot, SceneUpdate
+from models import HotspotDeleteRequest, HotspotUpdateRequest, SceneUpdateReorder, Tour, Scene, Hotspot, SceneUpdate
 from db import tours_collection, scenes_collection
 from uuid import uuid4
 
@@ -183,8 +183,26 @@ async def update_scene_name(tour_id: str, scene_id: str, data: SceneUpdate):
     return {"message": "Scene name updated successfully"}
 
 
+# @app.patch("/api/tours/{tour_id}/scenes/{scene_id}/reorder")
+# async def update_scene_name(tour_id: str, scene_id: str, order: SceneUpdateReorder):
+#     try:
+#         tour = tours_collection.find_one({"id": tour_id})
+#         # Find the tour by ID
+#         if not tour:
+#             raise HTTPException(status_code=404, detail="Tour not found")
+#         sceneIds = tour.get("sceneIds")
+#         sceneIds.remove(scene_id)
+#         sceneIds.insert(order.index-1, scene_id)
+#         result = tours_collection.update_one({"id": tour_id}, {"$set": {"sceneIds": sceneIds}})
+#         if result.matched_count == 0:
+#             raise HTTPException(status_code=404, detail="Scene not found")
+#         return {"message": "Scene order updated successfully"}
+                                                                        
+#     except Exception as e:
+#         raise HTTPException(status_code=500, detail="Unable to reorder")
+
 # Add a hotspot to a scene
-@app.post("/api/scenes/{scene_id}/hotspots/")
+@app.post("/api/scenes/{scene_id}/hotspots")
 def add_hotspot(scene_id: str, hotspot: Hotspot):
     try:
         # Find the scene by ID

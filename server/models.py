@@ -5,6 +5,9 @@ from typing import List, Optional
 
 class SceneUpdate(BaseModel):
     name: str
+    
+class SceneUpdateReorder(BaseModel):
+    order: int
 
 class Hotspot(BaseModel):
     pitch: float

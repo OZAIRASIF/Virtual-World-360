@@ -385,14 +385,16 @@ h4 {
     right: 5%;
 }
 
-.btns{
+.btns {
     display: flex;
     gap: 2px;
 }
-.editBtn{
+
+.editBtn {
     background-color: #7772ff !important;
 }
-.deleteBtn{
+
+.deleteBtn {
     background-color: #FF6347 !important;
 }
 
@@ -415,7 +417,7 @@ h4 {
     padding: 20px;
     border-radius: 8px;
     width: 400px;
-    color:black;
+    color: black;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 
@@ -458,21 +460,26 @@ h4 {
 
     /* max-width: 50vw; */
     position: fixed;
-    transform: translate(-50%,0);
+    transform: translate(-50%, 0);
     left: 50%;
     bottom: 0;
-    overflow-x: scroll;  backdrop-filter: blur(10px); /* Glassmorphic blur effect */
+    overflow-x: scroll;
+    backdrop-filter: blur(10px);
+    /* Glassmorphic blur effect */
     display: flex;
     justify-content: center;
     padding-left: 350px;
-    padding: 10px ;
+    padding: 10px;
     z-index: 100000;
     gap: 10px;
-    border-top: 1px solid rgba(255, 255, 255, 0.2); /* Subtle white border */
-    border-radius: 10px; /* Rounded edges */
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5); /* Soft shadow for depth */
-  }
-  
+    border-top: 1px solid rgba(255, 255, 255, 0.2);
+    /* Subtle white border */
+    border-radius: 10px;
+    /* Rounded edges */
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+    /* Soft shadow for depth */
+}
+
 
 
 .scene-item2 {
@@ -498,19 +505,52 @@ h4 {
     flex-direction: column;
     align-items: center;
     justify-content: center;
-  }
-  
-  .scene-image2 {
+}
+
+.scene-image2 {
     width: 80px;
     height: 60px;
     object-fit: cover;
     margin-bottom: 5px;
     border-radius: 4px;
-  }
-  
-  .scene-item span {
+}
+
+.scene-item span {
     color: white;
     font-size: 14px;
-  }
-  
-  
+}
+
+.vrButton {
+    position: absolute;
+    top: 3%;
+    left: 50%;
+    transform: translateX(-20%);
+    z-index: 100;
+}
+
+input[type="number"] {
+    max-width: 50px;
+    padding: 0 6px;
+}
+
+.scene-content2>span {
+    text-align: center;
+}
+
+#textInfo .hotspot :is(.in, .out) {
+    all: unset;
+}
+
+.tooltipcss {
+    display: block;
+    /* position: absolute; */
+    width: 40px;
+    height: 40px;
+    background-image: url("https://media.tenor.com/jmfd-u6R5zMAAAAM/up-arrow.gif");
+    /* Use background-image */
+    background-size: cover;
+    /* Or contain, adjust as needed */
+    background-repeat: no-repeat;
+    /* Prevent tiling */
+    border-radius: 50%;
+}
