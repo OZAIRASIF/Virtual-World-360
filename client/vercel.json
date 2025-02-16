@@ -4,5 +4,8 @@
             "source": "/(.*)",
             "destination": "/"
         }
-    ]
+    ],
+    "build": {
+        "command": "npm install --legacy-peer-deps && next build"
+    }
 }
