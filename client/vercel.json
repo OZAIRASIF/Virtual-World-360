@@ -4,6 +4,5 @@
             "source": "/(.*)",
             "destination": "/"
         }
-    ],
-    "buildCommand": "npm install --force && next build"
+    ]
 }
