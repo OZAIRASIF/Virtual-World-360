@@ -5,7 +5,5 @@
             "destination": "/"
         }
     ],
-    "build": {
-        "command": "npm install --legacy-peer-deps && next build"
-    }
+    "build": "npm install --legacy-peer-deps && next build"
 }
