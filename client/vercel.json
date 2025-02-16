@@ -5,5 +5,5 @@
             "destination": "/"
         }
     ],
-    "buildCommand": "npm install --legacy-peer-deps && next build"
+    "buildCommand": "npm install --force && next build"
 }
