@@ -2,7 +2,8 @@
 import os
 import pymongo
 
-ENVIRONMENT = os.environ["ENVIRONMENT"]
+# ENVIRONMENT = os.environ["ENVIRONMENT"]
+ENVIRONMENT = "dev"
 
 if ENVIRONMENT == "dev":
     connection_string = "mongodb://localhost:27017"

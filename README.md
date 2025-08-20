@@ -22,7 +22,7 @@ Welcome to **VirtualWorld360**, a dynamic virtual tour editor that allows users 
 1. Clone the repository:
 
    ```bash
-   git clone https://github.com/swikrit09/virtualworld360.git
+   git clone https://github.com/OZAIRASIF/Virtual-World-360.git
    ```
 
 2. Install dependencies:
@@ -46,7 +46,7 @@ Welcome to **VirtualWorld360**, a dynamic virtual tour editor that allows users 
    npm run dev
    
    # For backend
-   uvicorn main:app --reload
+   uvicorn main:app --reload --port 8080
    ```
 
 ## Usage
