@@ -9,6 +9,22 @@ from models import HotspotDeleteRequest, HotspotUpdateRequest, SceneUpdateReorde
 from db import tours_collection, scenes_collection
 from uuid import uuid4
 import requests
+from sklearn.cluster import DBSCAN
+import torch
+import torch.nn as nn
+import torchvision.models as models
+import torchvision.transforms as transforms
+from sklearn.metrics.pairwise import cosine_similarity
+from PIL import Image
+import numpy as np
+import torch
+import torch.nn as nn
+import torchvision.models as models
+import torchvision.transforms as transforms
+import cv2
+import numpy as np
+from sklearn.metrics.pairwise import cosine_similarity
+from restnet import find_hotspot_between_image_arrays
 # Initialize FastAPI app
 app = FastAPI()
 
@@ -73,122 +89,66 @@ def update_tour(tour_id: str, tour: Tour):
     updated_tour = tours_collection.find_one({"id": tour_id})
     return updated_tour
 
-import cv2
-import numpy as np
-
-def find_hotspot_between_image_arrays(img1, img2, top_matches=50):
-    # Convert to grayscale
-    img1_gray = cv2.cvtColor(img1, cv2.COLOR_BGR2GRAY) if len(img1.shape)==3 else img1.copy()
-    img2_gray = cv2.cvtColor(img2, cv2.COLOR_BGR2GRAY) if len(img2.shape)==3 else img2.copy()
-
-    orb = cv2.ORB_create(nfeatures=2000)
-    kp1, des1 = orb.detectAndCompute(img1_gray, None)
-    kp2, des2 = orb.detectAndCompute(img2_gray, None)
-    
-    if des1 is None or des2 is None:
-        return 0, 0  # fallback
-
-    bf = cv2.BFMatcher(cv2.NORM_HAMMING, crossCheck=True)
-    matches = bf.match(des1, des2)
-
-    if not matches:
-        return 0, 0
-
-    # Sort matches by distance and take top N
-    matches = sorted(matches, key=lambda x: x.distance)[:top_matches]
-
-    points = np.array([kp2[m.trainIdx].pt for m in matches])
-
-    # Cluster points with DBSCAN
-    if len(points) < 2:
-        return 0, 0
-
-    clustering = DBSCAN(eps=20, min_samples=3).fit(points)
-    labels, counts = np.unique(clustering.labels_, return_counts=True)
-    if len(counts) == 0 or (labels[0] == -1 and len(labels)==1):
-        return 0, 0  # fallback if no cluster
-
-    # Take largest cluster (ignore noise label -1)
-    valid_labels = labels[labels != -1]
-    if len(valid_labels) == 0:
-        return 0, 0
-
-    largest_label = valid_labels[np.argmax(counts[labels != -1])]
-    cluster_points = points[clustering.labels_ == largest_label]
-
-    # Compute centroid
-    cx, cy = np.mean(cluster_points, axis=0)
-
-    # Convert to pitch/yaw
-    h, w = img2_gray.shape
-    yaw = (cx / w) * 360 - 180
-    pitch = 90 - (cy / h) * 180
-
-    return pitch, yaw
-
 
 @app.post("/api/tours/{tour_id}/scenes", response_model=Scene)
 def create_scene_and_add_to_tour(tour_id: str, file: UploadFile = File(...)):
     try:
-        # 1. Upload image to Cloudinary
+        # Upload image to Cloudinary
         upload_result = cloudinary.uploader.upload(file.file)
         image_url = upload_result.get("secure_url")
         if not image_url:
             raise HTTPException(status_code=500, detail="Failed to upload image to Cloudinary")
-        image_name = file.filename.rsplit(".", 1)[0] 
-        # 2. Create the new scene
+        image_name = file.filename.rsplit(".", 1)[0]
+
+        # Create the new scene
         new_scene = {
             "id": str(uuid4()),
             "name": image_name,
             "image": image_url,
             "hotspots": []
         }
-
-        # 3. Insert the new scene
         scenes_collection.insert_one(new_scene)
 
-        # 4. Find the tour
+        # Find the tour
         tour = tours_collection.find_one({"id": tour_id})
         if not tour:
             raise HTTPException(status_code=404, detail="Tour not found")
-
-        # Ensure sceneIds array exists
         if "sceneIds" not in tour:
             tour["sceneIds"] = []
 
-        # 5. Add new scene ID to tour
+        # Add new scene ID to tour
         tours_collection.update_one(
             {"id": tour_id},
             {"$push": {"sceneIds": new_scene['id']}}
         )
 
-        # Inside your endpoint, instead of local paths:
-        if tour["sceneIds"]:  # there are existing scenes
-            previous_scene_id = tour["sceneIds"][-1]  # most recent scene before new one
-            prev_scene = scenes_collection.find_one({"id": previous_scene_id})
+        # If this is not the first scene, create hotspot between main and new scene
+        if len(tour["sceneIds"]) >= 1:
+            main_scene_id = tour["sceneIds"][0]
+            main_scene = scenes_collection.find_one({"id": main_scene_id})
 
-            if prev_scene is not None:
+            if main_scene:
                 try:
-                    # --- Download previous scene image from Cloudinary ---
-                    resp = requests.get(prev_scene['image'], timeout=10)
+                    # Download main scene image
+                    resp = requests.get(main_scene['image'], timeout=10)
                     resp.raise_for_status()
-                    prev_img_array = np.frombuffer(resp.content, np.uint8)
-                    prev_img = cv2.imdecode(prev_img_array, cv2.IMREAD_COLOR)
-                    if prev_img is None:
-                        raise ValueError("Failed to decode previous image")
+                    main_img_array = np.frombuffer(resp.content, np.uint8)
+                    main_img = cv2.imdecode(main_img_array, cv2.IMREAD_COLOR)
+                    if main_img is None:
+                        raise ValueError("Failed to decode main scene image")
 
-                    # --- Read current uploaded file safely ---
-                    file.file.seek(0)  # reset pointer in case it was read before
+                    # Read current uploaded file
+                    file.file.seek(0)
                     file_bytes = np.frombuffer(file.file.read(), np.uint8)
                     new_img = cv2.imdecode(file_bytes, cv2.IMREAD_COLOR)
                     if new_img is None:
                         raise ValueError("Failed to decode uploaded image")
 
-                    # --- Find hotspot pitch/yaw ---
-                    pitch, yaw = find_hotspot_between_image_arrays(prev_img, new_img)
+                    # Find hotspot pitch/yaw
+                    pitch, yaw = find_hotspot_between_image_arrays(main_img, new_img)
 
-                    # --- Forward hotspot in previous scene ---
-                    forward_hotspot = {
+                    # --- Append hotspot in main scene for the new image ---
+                    main_to_new_hotspot = {
                         "pitch": pitch,
                         "yaw": yaw,
                         "type": "custom",
@@ -196,57 +156,48 @@ def create_scene_and_add_to_tour(tour_id: str, file: UploadFile = File(...)):
                         "text": f"Go to {new_scene['name']}"
                     }
                     scenes_collection.update_one(
-                        {"id": previous_scene_id},
-                        {"$push": {"hotspots": forward_hotspot}}
+                        {"id": main_scene_id},
+                        {"$push": {"hotspots": main_to_new_hotspot}}
                     )
 
-                    # --- Reverse hotspot in new scene ---
-                    reverse_hotspot = {
+                    # --- Append hotspot in new scene pointing to main scene ---
+                    new_to_main_hotspot = {
                         "pitch": pitch,
                         "yaw": (yaw + 180) % 360 - 180,
                         "type": "custom",
-                        "sceneId": previous_scene_id,
-                        "text": f"Go to Previous Scene"
+                        "sceneId": main_scene_id,
+                        "text": f"Go to {main_scene['name']}"
                     }
                     scenes_collection.update_one(
                         {"id": new_scene['id']},
-                        {"$push": {"hotspots": reverse_hotspot}}
+                        {"$push": {"hotspots": new_to_main_hotspot}}
                     )
-                    print("Match found")
+
+                    print(f"Hotspot created between main scene and {new_scene['name']}")
 
                 except Exception as e:
-                    # --- Fallback to manual center ---
+                    # Fallback to manual center
                     print("No match found, using default hotspot")
                     print(e)
-                    forward_hotspot = {
-                        "pitch": 0,
-                        "yaw": 0,
-                        "type": "custom",
-                        "sceneId": new_scene['id'],
-                        "text": f"Go to {new_scene['name']}"
-                    }
+                    main_to_new_hotspot = {"pitch": 0, "yaw": 0, "type": "custom",
+                                           "sceneId": new_scene['id'], "text": f"Go to {new_scene['name']}"}
+                    new_to_main_hotspot = {"pitch": 0, "yaw": 180, "type": "custom",
+                                           "sceneId": main_scene_id, "text": f"Go to {main_scene['name']}"}
+
                     scenes_collection.update_one(
-                        {"id": previous_scene_id},
-                        {"$push": {"hotspots": forward_hotspot}}
+                        {"id": main_scene_id}, {"$push": {"hotspots": main_to_new_hotspot}}
                     )
-                    reverse_hotspot = {
-                        "pitch": 0,
-                        "yaw": 180,
-                        "type": "custom",
-                        "sceneId": previous_scene_id,
-                        "text": f"Go to Previous Scene"
-                    }
                     scenes_collection.update_one(
-                        {"id": new_scene['id']},
-                        {"$push": {"hotspots": reverse_hotspot}}
+                        {"id": new_scene['id']}, {"$push": {"hotspots": new_to_main_hotspot}}
                     )
 
-        # 7. Return the new scene
         return Scene(**new_scene)
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
-    
+
+
+
     
 @app.delete("/api/tours/{tour_id}/scenes/{scene_id}", response_model=dict)
 def delete_scene_from_tour(tour_id: str, scene_id: str):

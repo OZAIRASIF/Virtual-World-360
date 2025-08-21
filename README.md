@@ -85,17 +85,7 @@ Here are a few snapshots from the VirtualWorld360 editor:
 
 ![Preview Mode](./media/4.png)
 
-## Contributing
 
-1. Fork the repository
-2. Create a new branch (`git checkout -b feature-branch`)
-3. Commit your changes (`git commit -m 'Add a new feature'`)
-4. Push to the branch (`git push origin feature-branch`)
-5. Open a pull request
-
-## License
-
-This project is licensed under the MIT License.
 
 
 
