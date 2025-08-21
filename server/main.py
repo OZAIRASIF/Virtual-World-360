@@ -24,6 +24,9 @@ import torchvision.transforms as transforms
 import cv2
 import numpy as np
 from sklearn.metrics.pairwise import cosine_similarity
+from dotenv import load_dotenv
+import os
+from pathlib import Path
 from restnet import find_hotspot_between_image_arrays
 # Initialize FastAPI app
 app = FastAPI()
@@ -40,9 +43,7 @@ app.add_middleware(
     allow_methods=["*"],  # Allows all HTTP methods (GET, POST, etc.)
     allow_headers=["*"],  # Allows all headers
 )
-from dotenv import load_dotenv
-import os
-from pathlib import Path
+
 
 # Always load .env from project root
 env_path = Path(__file__).resolve().parents[1] / ".env"
@@ -355,113 +356,3 @@ async def delete_hotspot(scene_id: str, hotspot_to_delete: HotspotDeleteRequest)
     )
     return {"message": "Hotspot deleted successfully"}
 
-
-
-# import uuid
-# import cv2
-# import numpy as np
-# import cloudinary.uploader
-# from fastapi import UploadFile, File, HTTPException
-
-# def find_hotspot_between_images(img1_path, img2_path):
-#     """ORB feature match, return yaw/pitch of hotspot."""
-#     img1 = cv2.imread(img1_path, 0)
-#     img2 = cv2.imread(img2_path, 0)
-
-#     if img1 is None or img2 is None:
-#         return None
-
-#     orb = cv2.ORB_create()
-#     kp1, des1 = orb.detectAndCompute(img1, None)
-#     kp2, des2 = orb.detectAndCompute(img2, None)
-
-#     if des1 is None or des2 is None:
-#         return None
-
-#     bf = cv2.BFMatcher(cv2.NORM_HAMMING, crossCheck=True)
-#     matches = bf.match(des1, des2)
-#     if not matches:
-#         return None
-
-#     matches = sorted(matches, key=lambda x: x.distance)
-#     best_match = matches[0]
-
-#     pt1 = kp1[best_match.queryIdx].pt
-#     yaw = (pt1[0] / img1.shape[1]) * 360 - 180
-#     pitch = (pt1[1] / img1.shape[0]) * 180 - 90
-
-#     return {"yaw": yaw, "pitch": pitch}
-
-
-# from uuid import uuid4
-
-# @app.post("/api/tours/{tour_id}/scenes", response_model=Scene)
-# def create_scene_and_add_to_tour(tour_id: str, file: UploadFile = File(...)):
-#     try:
-#         # ✅ Upload the image to Cloudinary
-#         upload_result = cloudinary.uploader.upload(file.file)
-#         image_url = upload_result.get("secure_url")
-
-#         # ✅ Create a new scene
-#         new_scene = {
-#             "id": str(uuid4()),
-#             "name": "New Scene",
-#             "image": image_url,
-#             "hotspots": []
-#         }
-
-#         # ✅ Insert scene into DB
-#         scenes_collection.insert_one(new_scene)
-
-#         # ✅ Find tour
-#         tour = tours_collection.find_one({"id": tour_id})
-#         if not tour:
-#             raise HTTPException(status_code=404, detail="Tour not found")
-
-#         # ✅ Attach new scene to tour
-#         tours_collection.update_one(
-#             {"id": tour_id},
-#             {"$push": {"sceneIds": new_scene['id']}}
-#         )
-
-#         # ✅ Fetch updated scene list
-#         tour = tours_collection.find_one({"id": tour_id})
-#         scene_ids = tour.get("sceneIds", [])
-
-#         # If there are at least 2 scenes, add a hotspot at the center of previous scene
-#         # Add hotspot to previous scene pointing to new scene
-#         if len(scene_ids) > 1:
-#             prev_id = scene_ids[-2]
-#             prev_scene = scenes_collection.find_one({"id": prev_id})
-#             center_hotspot = {
-#                 "id": str(uuid4()),
-#                 "pitch": 0.0,  # center
-#                 "yaw": 0.0,    # center
-#                 "type": "scene",
-#                 "text": f"Go to {new_scene['name']}",
-#                 "targetScene": new_scene['id']
-#             }
-#             scenes_collection.update_one(
-#                 {"id": prev_id},
-#                 {"$push": {"hotspots": center_hotspot}}
-#             )
-
-#         # Add hotspot to new scene pointing back to previous scene
-#         if len(scene_ids) > 1:
-#             reverse_hotspot = {
-#                 "id": str(uuid4()),
-#                 "pitch": 0.0,  # center
-#                 "yaw": 0.0,    # center
-#                 "type": "scene",
-#                 "text": f"Go to {prev_scene['name']}",
-#                 "targetScene": prev_id
-#             }
-#             scenes_collection.update_one(
-#                 {"id": new_scene['id']},
-#                 {"$push": {"hotspots": reverse_hotspot}}
-#             )
-
-#         return Scene(**new_scene)
-
-#     except Exception as e:
-#         raise HTTPException(status_code=500, detail=str(e))

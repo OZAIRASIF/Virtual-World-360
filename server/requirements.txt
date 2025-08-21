@@ -4,3 +4,11 @@ pydantic==1.10.7
 pymongo[srv]==3.11.0
 python-multipart
 motor
+requests
+scikit-learn
+torch
+torchvision
+Pillow
+numpy
+opencv-python
+python-dotenv
