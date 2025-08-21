@@ -40,21 +40,20 @@ app.add_middleware(
     allow_methods=["*"],  # Allows all HTTP methods (GET, POST, etc.)
     allow_headers=["*"],  # Allows all headers
 )
+from dotenv import load_dotenv
+import os
+from pathlib import Path
 
-cloud_nam = "dumnnsxzh"
-key = "915679899899667"
-secret = "rnu-3mhkaYVaM1XcdOohXodlpHE"
-# Cloudinary configuration
-# cloudinary.config(
-#     cloud_name=os.getenv('CLOUDINARY_CLOUD_NAME'),
-#     api_key=os.getenv('CLOUDINARY_API_KEY'),
-#     api_secret=os.getenv('CLOUDINARY_API_SECRET')
-# )
+# Always load .env from project root
+env_path = Path(__file__).resolve().parents[1] / ".env"
+load_dotenv(dotenv_path=env_path)
+
 cloudinary.config(
-    cloud_name=cloud_nam,
-    api_key=key,
-    api_secret=secret
+    cloud_name=os.getenv("CLOUD_NAME"),
+    api_key=os.getenv("CLOUDINARY_KEY"),
+    api_secret=os.getenv("CLOUDINARY_SECRET")
 )
+
 
 # Get all tours
 @app.get("/api/tours", response_model=List[Tour])
